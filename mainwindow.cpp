@@ -111,12 +111,11 @@ void MainWindow::OnBuild()
 			for( unsigned int i= 0; i < input_text.size(); i++ )
 			{
 				if( input_text[i] == '\n' ) cur_line++;
-				cur_pos++;
 
 				if( line == cur_line )
 				{
 					ss<< "Syntax error at line "<< line<< std::endl;
-					while( cur_pos < file_pos && cur_pos < input_text.size() )
+					while( cur_pos <= file_pos && cur_pos < input_text.size() )
 					{
 						ss<< input_text[cur_pos];
 						cur_pos++;
@@ -124,6 +123,7 @@ void MainWindow::OnBuild()
 					ss<< " <-------HERE"<< std::endl;
 					break;
 				}
+				cur_pos++;
 			}
 		}
 		else

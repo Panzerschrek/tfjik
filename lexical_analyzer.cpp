@@ -182,7 +182,6 @@ Lexems Parse( const std::string& file_data )
 			if( !found )
 			{
 				// TODO - check for trash
-				if( !(c == 0x0D || c == 0x0A) ) throw LexicalError( it - file_data.begin() );
 				it++;
 				continue;
 			}

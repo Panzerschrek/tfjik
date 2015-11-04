@@ -48,14 +48,12 @@ Enumeration ParseEnumeration( const Lexems& lexems )
 			it++;
 		}
 	}
-	else throw SyntaxError(it - lexems.begin());
 
 	if( it != lexems.end() && it->type == Lexem::Type::Identifier )
 	{
 		result.name= it->text;
 		it++;
 	}
-	else throw SyntaxError(it - lexems.begin());
 
 	if( it != lexems.end() && it->type == Lexem::Type::Colon )
 	{
