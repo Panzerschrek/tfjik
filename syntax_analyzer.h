@@ -1,5 +1,7 @@
 #pragma once
 #include <exception>
+#include <memory>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -22,6 +24,60 @@ struct CombinedName
 	// khe::khe
 	// wtf
 	std::vector< std::string > names_part;
+
+	void Print(std::ostream& stream) const;
+};
+
+struct BinaryOperationsChain
+{
+	enum class Operator
+	{
+		Add,
+		Sub,
+		Mul,
+		Div,
+		NoOperator // Special value - for end of binary operators chain
+	};
+
+	// Components of binary expression chain
+
+	struct IComponent
+	{
+		virtual ~IComponent() {}
+		virtual void Print(std::ostream& stream) const = 0;
+	};
+	typedef std::unique_ptr<IComponent> IComponentPtr;
+
+	struct NumericConstant : public IComponent
+	{
+		virtual void Print(std::ostream& stream) const override;
+
+		std::string value;
+	};
+
+	struct Variable : public IComponent
+	{
+		virtual void Print(std::ostream& stream) const override;
+
+		CombinedName name;
+	};
+
+	struct BracketExpression : public IComponent
+	{
+		virtual void Print(std::ostream& stream) const override;
+
+		std::unique_ptr<BinaryOperationsChain> subexpression;
+	};
+
+	struct ComponentWithOperator
+	{
+		IComponentPtr component;
+		Operator op= Operator::NoOperator;
+	};
+
+	void Print(std::ostream& stream) const;
+
+	std::vector< ComponentWithOperator > components;
 };
 
 struct Enumeration
@@ -29,7 +85,7 @@ struct Enumeration
 	struct Member
 	{
 		std::string name;
-		std::string value;
+		BinaryOperationsChain value;
 	};
 
 	std::string name;

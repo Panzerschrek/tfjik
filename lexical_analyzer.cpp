@@ -41,6 +41,7 @@ static const std::map<std::string, Lexem::Type> c_operators_lexems=
 	{ "+", Lexem::Type::Plus },
 	{ "-", Lexem::Type::Minus },
 	{ "*", Lexem::Type::Star },
+	{ "/", Lexem::Type::Slash },
 	{ "&", Lexem::Type::And },
 	{ "|", Lexem::Type::Or },
 	{ "^", Lexem::Type::Xor },
@@ -56,6 +57,14 @@ static const int c_max_predifined_lexem_length= 4;
 namespace LexemParser
 {
 
+inline bool IsHexDigit(char c)
+{
+	if( isdigit(c) ) return true;
+
+	char upper= toupper(c);
+	return upper >= 'A' && upper <= 'F';
+}
+
 static Lexem ParseNumericConstant( const std::string& file_data, std::string::const_iterator& it )
 {
 	Lexem result;
@@ -65,13 +74,13 @@ static Lexem ParseNumericConstant( const std::string& file_data, std::string::co
 	// Hex
 	if( *it == '0' && (it+1) < file_data.end() && *(it+1) == 'x' )
 	{
-		if( it+2 == file_data.end() || !isdigit(*(it+2)) )
-			throw LexicalError( it - file_data.end() );
+		if( it+2 == file_data.end() || !IsHexDigit(*it) )
+			throw LexicalError( it - file_data.begin() );
 
 		result.text+= "0x";
 		it+= 2;
 
-		while( it != file_data.end() && ( isdigit(*it) || ( toupper(*it) >= 'A' && toupper(*it) <= 'F' ) ) )
+		while( it != file_data.end() && IsHexDigit(*it) )
 		{
 			result.text+= *it;
 			it++;
@@ -85,7 +94,7 @@ static Lexem ParseNumericConstant( const std::string& file_data, std::string::co
 		}
 
 	if( it != file_data.end() && isalpha(*it) )
-		throw LexicalError( it - file_data.end() );
+		throw LexicalError( it - file_data.begin() );
 
 	result.type= Lexem::Type::NumericConstant;
 	return result;
@@ -130,6 +139,7 @@ Lexems Parse( const std::string& file_data )
 					it++;
 					while( it < file_data.end() && *it != '\n' ) it++;
 					line++;
+					continue;
 				}
 				else if( *it == '*' )
 				{
@@ -144,9 +154,14 @@ Lexems Parse( const std::string& file_data )
 						}
 						it++;
 					}
+					continue;
 				}
-				else throw LexicalError( it - file_data.begin() );
-				continue;
+				else
+				{
+					lexem.type= Lexem::Type::Slash;
+					lexem.text= "/";
+				}
+
 			}
 		}
 		else if( c == '\n' )

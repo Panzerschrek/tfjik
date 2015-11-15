@@ -68,6 +68,7 @@ struct Lexem
 		Plus, // +
 		Minus, // -
 		Star, // *
+		Slash, // /
 		And, // &
 		Or, // |
 		Xor, // ^

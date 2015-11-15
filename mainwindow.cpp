@@ -89,7 +89,27 @@ void MainWindow::OnBuild()
 	}
 	catch( LexicalError ex )
 	{
-		output_->setText( QString::fromStdString(ex.what()) );
+		unsigned int last_line_begin_pos= 0;
+		unsigned int line= 1;
+		for( unsigned int i= 0; i < ex.file_pos_ - 1 && i < input_text.size(); i++ )
+			if( input_text[i] == '\n' )
+			{
+				line++;
+				last_line_begin_pos= i + 1;
+			}
+
+		std::stringstream ss;
+		ss<< "Lexical error in line " << line<< std::endl;
+
+		for( unsigned int i= last_line_begin_pos; i < input_text.size() && i < ex.file_pos_ + 1; i++ )
+		{
+			if( input_text[i] == '\n' ) break;
+			ss<< input_text[i];
+		}
+
+		ss<< " <-------HERE"<< std::endl;
+
+		output_->setText( QString::fromStdString(ss.str()) );
 		return;
 	}
 
@@ -133,7 +153,27 @@ void MainWindow::OnBuild()
 		return;
 	}
 
-	output_->setText( "Everything is ok" );
+	std::stringstream ss;
+
+	ss<< "enum " << (enumeration.is_scopped ? "scopped " : "") << enumeration.name;
+	if( !enumeration.base_type.empty() )
+	{
+		ss<< " : ";
+		for( const CombinedName& base_type_part : enumeration.base_type )
+		{
+			base_type_part.Print( ss );
+			ss<< " ";
+		}
+	}
+	ss<< std::endl<< enumeration.members.size() << " members: "<< std::endl;
+	for( const Enumeration::Member& member : enumeration.members )
+	{
+		ss<< member.name <<" = ";
+		member.value.Print( ss );
+		ss<< std::endl;
+	}
+
+	output_->setText( QString::fromStdString(ss.str()) );
 }
 
 void MainWindow::OnAbout()
