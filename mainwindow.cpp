@@ -79,7 +79,7 @@ void MainWindow::OnLoad()
 void MainWindow::OnBuild()
 {
 	Lexems lexems;
-	Enumeration enumeration;
+	Enumerations enumerations;
 
 	const std::string input_text= editor_->toPlainText().toStdString();
 
@@ -115,7 +115,7 @@ void MainWindow::OnBuild()
 
 	try
 	{
-		enumeration= SyntaxAnalyzer::ParseEnumeration( lexems );
+		enumerations= SyntaxAnalyzer::ParseEnumerations( lexems );
 	}
 	catch( SyntaxError error )
 	{
@@ -155,21 +155,25 @@ void MainWindow::OnBuild()
 
 	std::stringstream ss;
 
-	ss<< "enum " << (enumeration.is_scopped ? "scopped " : "") << enumeration.name;
-	if( !enumeration.base_type.empty() )
+	for (const Enumeration& enumeration : enumerations)
 	{
-		ss<< " : ";
-		for( const CombinedName& base_type_part : enumeration.base_type )
+		ss<< "enum " << (enumeration.is_scopped ? "scopped " : "") << enumeration.name;
+		if( !enumeration.base_type.empty() )
 		{
-			base_type_part.Print( ss );
-			ss<< " ";
+			ss<< " : ";
+			for( const CombinedName& base_type_part : enumeration.base_type )
+			{
+				base_type_part.Print( ss );
+				ss<< " ";
+			}
 		}
-	}
-	ss<< std::endl<< enumeration.members.size() << " members: "<< std::endl;
-	for( const Enumeration::Member& member : enumeration.members )
-	{
-		ss<< member.name <<" = ";
-		member.value.Print( ss );
+		ss<< std::endl<< enumeration.members.size() << " members: "<< std::endl;
+		for( const Enumeration::Member& member : enumeration.members )
+		{
+			ss<< member.name <<" = ";
+			member.value.Print( ss );
+			ss<< std::endl;
+		}
 		ss<< std::endl;
 	}
 

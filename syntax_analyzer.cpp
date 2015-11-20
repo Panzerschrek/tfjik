@@ -69,7 +69,7 @@ static CombinedName ParseCombinedName( const Lexems& lexems, Lexems::const_itera
 	return result;
 }
 
-BinaryOperationsChain::Operator ParseBinaryOperator( Lexems::const_iterator& it )
+static BinaryOperationsChain::Operator ParseBinaryOperator( Lexems::const_iterator& it )
 {
 	switch( it->type )
 	{
@@ -83,7 +83,7 @@ BinaryOperationsChain::Operator ParseBinaryOperator( Lexems::const_iterator& it 
 	return BinaryOperationsChain::Operator::NoOperator;
 }
 
-BinaryOperationsChain ParseBinaryOperatorsChain( const Lexems& lexems, Lexems::const_iterator& it )
+static BinaryOperationsChain ParseBinaryOperatorsChain( const Lexems& lexems, Lexems::const_iterator& it )
 {
 	BinaryOperationsChain result;
 
@@ -142,11 +142,9 @@ BinaryOperationsChain ParseBinaryOperatorsChain( const Lexems& lexems, Lexems::c
 	return result;
 }
 
-Enumeration ParseEnumeration( const Lexems& lexems )
+static Enumeration ParseEnumeration( const Lexems& lexems, Lexems::const_iterator& it )
 {
 	Enumeration result;
-
-	Lexems::const_iterator it= lexems.begin();
 
 	if( it != lexems.end() &&
 		it->type == Lexem::Type::Identifier &&
@@ -223,6 +221,20 @@ Enumeration ParseEnumeration( const Lexems& lexems )
 
 	if( it != lexems.end() && it->type == Lexem::Type::Semicolon ){}
 	else throw SyntaxError(it - lexems.begin());
+	it++;
+
+	return result;
+}
+
+Enumerations ParseEnumerations( const Lexems& lexems )
+{
+	Enumerations result;
+
+	Lexems::const_iterator it= lexems.begin();
+	while( it < lexems.end() )
+	{
+		result.push_back( ParseEnumeration( lexems, it ) );
+	}
 
 	return result;
 }

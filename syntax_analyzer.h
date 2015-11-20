@@ -96,9 +96,11 @@ struct Enumeration
 	std::vector<Member> members;
 };
 
+typedef std::vector<Enumeration> Enumerations;
+
 namespace SyntaxAnalyzer
 {
 
-Enumeration ParseEnumeration( const Lexems& lexems );
+Enumerations ParseEnumerations( const Lexems& lexems );
 
 } // namespace SyntaxAnalyzer
